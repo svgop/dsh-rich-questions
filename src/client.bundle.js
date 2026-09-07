@@ -330,6 +330,7 @@ return {
 			"draft.missing": "个必填缺口",
 			"draft.revision": "结构版本",
 			"draft.dismiss": "隐藏草稿卡片",
+		"draft.recall": "显示问卷草稿卡片",
 			"draft.hint": "正在按构建器流程构建这份问卷（调研 + 小步补全）；构建完成会自动切换为问卷向导。",
 			"draft.show": "显示卡片",
 			"draft.status.building": "构建中",
@@ -388,6 +389,7 @@ return {
 			"draft.missing": "required fields missing",
 			"draft.revision": "rev",
 			"draft.dismiss": "Hide draft card",
+		"draft.recall": "Show draft card",
 			"draft.hint": "This survey is being built through the builder lifecycle (research + small patches); the wizard takes this seat automatically on launch.",
 			"draft.show": "Show card",
 			"draft.status.building": "Building",
@@ -558,6 +560,7 @@ a.rq-source:hover{text-decoration:underline}
 .rq-diagram svg{width:100%;height:auto;max-height:224px;display:block}
 .rq-diagramLoading,.rq-diagramError{color:var(--dsw-alias-label-tertiary);font-size:12px;line-height:16px}
 .rq-draftCard{width:100%;max-width:var(--dsh-chat-content-width);border:1px solid var(--dsw-alias-border-l2-darkmode-thin);background:var(--dsw-specific-input-major);border-radius:14px;padding:10px 14px;display:flex;flex-direction:column;gap:7px}
+.rq-draftRecall{appearance:none;display:inline-flex;align-items:center;gap:6px;max-width:100%;margin:0 auto;padding:3px 10px;background:0 0;border:1px solid var(--dsw-alias-border-l2);border-radius:999px;font:inherit;font-size:11.5px;line-height:16px;color:var(--dsw-alias-label-tertiary);cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rq-draftStrip{display:flex;align-items:center;gap:8px}
 .rq-draftCard,.rq-draftCard *{box-sizing:border-box}
 .rq-draftHead{display:flex;align-items:center;gap:8px;min-width:0}
@@ -1443,7 +1446,25 @@ a.rq-source:hover{text-decoration:underline}
 				const saved = loadDraftDismissal(draft.slug);
 				collapsed = saved !== null && saved.revision === draft.revision && saved.status === draft.status;
 			}
-			if (collapsed) return null;
+			// Dismissal is reversible: a collapsed strip renders a compact
+			// recall pill instead of vanishing, so build progress is never a
+			// dead end (the same guarantee the minimized-survey reopener gives).
+			if (collapsed) {
+				return (0, react_jsx_runtime.jsx)("div", { className: "rq-frame", children: (0, react_jsx_runtime.jsxs)("button", {
+					type: "button",
+					className: "rq-draftRecall",
+					"aria-label": t("draft.recall"),
+					title: t("draft.recall"),
+					onClick: () => {
+						clearDraftDismissal(draft.slug);
+						setOverride({ slug: draft.slug, revision: draft.revision, status: draft.status, hidden: false });
+					},
+					children: [
+						(0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconListPenOutline16, { size: 14 }),
+						(0, react_jsx_runtime.jsx)("span", { children: `${t("draft.recall")} \u00b7 ${draft.title ?? draft.slug}` })
+					]
+				}) });
+			}
 			const progress = draft.progress ?? {};
 			const total = typeof progress.questions === "number" ? progress.questions : 0;
 			const done = typeof progress.complete === "number" ? progress.complete : 0;
