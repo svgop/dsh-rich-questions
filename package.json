@@ -32,7 +32,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test \"tests/**/*.spec.js\" src/announcement-contract.test.mjs src/bundle-contract.test.mjs"
+    "test": "node --test --test-concurrency=1 \"tests/**/*.spec.js\" src/announcement-contract.test.mjs src/bundle-contract.test.mjs"
   },
   "type": "module",
   "main": "src/host.js",
