@@ -1608,6 +1608,7 @@ a.rq-source:hover{text-decoration:underline}
 			// so the composer's own UI survives the build stage untouched.
 			ctx.slots.inject("conversation.input.dock", () => ctx.slots.register({
 				name: "conversation.input.dock",
+				id: "rich-questions-draft",
 				order: 5,
 				locale: NS,
 				inject: (zone) => ({ sessionId: zone?.session?.sessionId })
