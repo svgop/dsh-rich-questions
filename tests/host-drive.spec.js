@@ -275,3 +275,18 @@ await callAction({ kind: 'cancel', surveyId: internalSurveyId })
 console.log('host drive OK: 5 tools, begin/patch/get/launch-gate/structure/discard, quick+intro authoring, answer + settled record, records reader, reroll + reopen, SSE frames observed')
 for (const fn of closeHandlers) fn() // drain the heartbeat so the test process exits
 
+
+// --- Workspace track record: a settled survey must land beside the
+// workspace's .dsh/ state (date + title slug), cross-referenced by id.
+{
+  const { readdir, readFile: readRec } = await import('node:fs/promises')
+  const surveyDir = join(workspaceRoot, '.dsh', 'surveys')
+  const names = await readdir(surveyDir).catch(() => [])
+  assert.ok(names.length >= 2, `expected settled workspace records (one per settle), got ${names.join(', ') || 'none'}`)
+  const answeredName = names.find((n) => n.includes('drive-test')) ?? names[0]
+  const rec = JSON.parse(await readRec(join(surveyDir, answeredName), 'utf8'))
+  assert.equal(rec.workspaceRecord, true, 'workspace copy is marked')
+  assert.equal(typeof rec.surveyId, 'string', 'record cross-references the survey id')
+  assert.ok(rec.outcome === 'answered' || rec.outcome === 'cancelled', 'outcome carried')
+  assert.match(answeredName, /^\d{8}-\d{4}-/, 'named date-first for chronological browsing')
+}

@@ -172,11 +172,11 @@ class SurveyHostService {
   #subscribers = new Set()
 
   /** Block until the user answers or cancels (or the turn aborts). */
-  ask({ sessionId, spec, signal }) {
+  ask({ sessionId, spec, signal, cwd }) {
     if (signal?.aborted === true) return Promise.reject(new SurveyError('ask_survey was aborted before the user answered', 'SURVEY_ABORTED'))
     return new Promise((resolve, reject) => {
       const surveyId = randomUUID()
-      const entry = { surveyId, sessionId, spec, createdAt: Date.now(), resolve, reject, onAbort: undefined, signal, banked: new Map() }
+      const entry = { surveyId, sessionId, spec, cwd: typeof cwd === 'string' && cwd !== '' ? cwd : undefined, createdAt: Date.now(), resolve, reject, onAbort: undefined, signal, banked: new Map() }
       if (signal !== undefined) {
         entry.onAbort = () => this.settle(surveyId, { outcome: 'cancelled' })
         signal.addEventListener('abort', entry.onAbort, { once: true })
@@ -298,22 +298,41 @@ class SurveyHostService {
    * settle itself; only the record is lost.
    */
   persistSettled(entry, result) {
+    const record = {
+      v: 1,
+      surveyId: entry.surveyId,
+      sessionId: entry.sessionId,
+      outcome: result.outcome,
+      settledAt: Date.now(),
+      ...(entry.spec?.title !== undefined ? { title: entry.spec.title } : {}),
+      ...(entry.banked.size > 0 ? { banked: this.#bankedSnapshot(entry) } : {}),
+      ...(Array.isArray(result.answers) ? { answers: result.answers } : {}),
+      ...(Array.isArray(result.path) ? { path: result.path } : {}),
+      spec: entry.spec,
+    }
     try {
       const dir = join(pluginHome(), 'surveys')
       mkdirSync(dir, { recursive: true })
-      writeFileSync(join(dir, `${entry.surveyId}.json`), JSON.stringify({
-        v: 1,
-        surveyId: entry.surveyId,
-        sessionId: entry.sessionId,
-        outcome: result.outcome,
-        settledAt: Date.now(),
-        ...(entry.spec?.title !== undefined ? { title: entry.spec.title } : {}),
-        ...(entry.banked.size > 0 ? { banked: this.#bankedSnapshot(entry) } : {}),
-        ...(Array.isArray(result.answers) ? { answers: result.answers } : {}),
-        ...(Array.isArray(result.path) ? { path: result.path } : {}),
-        spec: entry.spec,
-      }, null, 2) + '\n', 'utf8')
+      writeFileSync(join(dir, `${entry.surveyId}.json`), JSON.stringify(record, null, 2) + String.fromCharCode(10), 'utf8')
     } catch { /* best-effort record: settle proceeds, only the record is lost */ }
+    // Workspace track record: every settled survey also lands beside the
+    // workspace's other .dsh/ state (the same lane drafts use), named by
+    // date + title slug so a human or agent browsing the project reads the
+    // full question history with ordinary file tools. The machine-local
+    // store above stays the canonical id-keyed record; this copy is the
+    // per-project track record.
+    if (entry.cwd !== undefined) {
+      try {
+        const stamp = new Date(record.settledAt)
+        const pad = (n) => String(n).padStart(2, '0')
+        const day = `${stamp.getFullYear()}${pad(stamp.getMonth() + 1)}${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}`
+        const slug = String(entry.spec?.title ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48)
+        const name = `${day}-${slug !== '' ? slug : 'survey'}-${entry.surveyId.slice(0, 8)}.json`
+        const wsDir = join(entry.cwd, '.dsh', 'surveys')
+        mkdirSync(wsDir, { recursive: true })
+        writeFileSync(join(wsDir, name), JSON.stringify({ ...record, workspaceRecord: true }, null, 2) + String.fromCharCode(10), 'utf8')
+      } catch { /* best-effort: the machine-local record above already holds the survey */ }
+    }
   }
 
   /** Push a builder-draft frame to SSE subscribers (draft-card hydration). */
@@ -604,7 +623,7 @@ function surveyToolDefinition(ctx, service) {
       if (!check.ok) throw new SurveyError(`invalid survey spec: ${check.errors.join('; ')}`, 'SURVEY_BAD_SPEC')
       const spec = check.spec
 
-      const result = await service.ask({ sessionId: agent.id, spec, signal: exec.signal })
+      const result = await service.ask({ sessionId: agent.id, spec, signal: exec.signal, cwd: agent.session?.header?.cwd })
 
       // Pre-flight redirect (reroll/push/discuss): the user never answered
       // any question, they picked one of the buttons next to "Start". Hand
@@ -858,7 +877,7 @@ function draftToolDefinitions(ctx, service, structureQuestionCap) {
       service.emitDraft(frameFor({ ...draft, status: 'launched' }, completeness, file))
       let result
       try {
-        result = await service.ask({ sessionId: agent.id, spec, signal: exec.signal })
+        result = await service.ask({ sessionId: agent.id, spec, signal: exec.signal, cwd: agent.session?.header?.cwd })
       } catch (error) {
         // An aborted tool run cancels the wizard (onAbort → SURVEY_CANCELLED)
         // and the throw would skip every path below — while markLaunched has
