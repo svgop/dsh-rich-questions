@@ -283,10 +283,20 @@ for (const fn of closeHandlers) fn() // drain the heartbeat so the test process 
   const surveyDir = join(workspaceRoot, '.dsh', 'surveys')
   const names = await readdir(surveyDir).catch(() => [])
   assert.ok(names.length >= 2, `expected settled workspace records (one per settle), got ${names.join(', ') || 'none'}`)
-  const answeredName = names.find((n) => n.includes('drive-test')) ?? names[0]
-  const rec = JSON.parse(await readRec(join(surveyDir, answeredName), 'utf8'))
-  assert.equal(rec.workspaceRecord, true, 'workspace copy is marked')
-  assert.equal(typeof rec.surveyId, 'string', 'record cross-references the survey id')
-  assert.ok(rec.outcome === 'answered' || rec.outcome === 'cancelled', 'outcome carried')
-  assert.match(answeredName, /^\d{8}-\d{4}-/, 'named date-first for chronological browsing')
+  // The lane holds one record per TERMINAL state of a survey request — the
+  // answered settle AND any pre-flight redirects (reroll/push/discuss), each
+  // with a random id suffix. The id suffix randomizes filename order, so the
+  // assertions must hold for EVERY record, not a randomly-sorted first pick
+  // (the v0.4.8 flake: a reroll record sorting first broke an answered-only
+  // outcome assertion).
+  const outcomes = []
+  for (const name of names) {
+    const rec = JSON.parse(await readRec(join(surveyDir, name), 'utf8'))
+    assert.equal(rec.workspaceRecord, true, `workspace copy is marked (${name})`)
+    assert.equal(typeof rec.surveyId, 'string', `record cross-references the survey id (${name})`)
+    assert.ok(['answered', 'cancelled', 'reroll', 'push', 'discuss', 'superseded'].includes(rec.outcome), `outcome carried (${name}: ${rec.outcome})`)
+    assert.match(name, /^\d{8}-\d{4}-/, 'named date-first for chronological browsing')
+    outcomes.push(rec.outcome)
+  }
+  assert.ok(outcomes.includes('answered'), `the answered settle must be recorded (outcomes: ${outcomes.join(', ')})`)
 }
