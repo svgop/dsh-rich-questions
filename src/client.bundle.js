@@ -1596,7 +1596,7 @@ a.rq-source:hover{text-decoration:underline}
 				id: "survey-reopener",
 				order: 5,
 				locale: NS,
-				inject: (zone) => ({ sessionId: zone.session.sessionId })
+				inject: (zone) => ({ sessionId: zone.session?.sessionId })
 			}, SurveyReopener));
 			ctx.slots.inject("conversation.composer", () => ctx.slots.register({
 				name: "conversation.composer",
