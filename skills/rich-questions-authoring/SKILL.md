@@ -16,6 +16,19 @@ The announcement carries the summary; this skill carries the depth, including th
 5. **LAUNCH** — `survey_draft_launch`; the wizard takes the composer.
 6. **HONOR** — mirror-back, receipts, no re-asking (`survey_records` before authoring).
 
+## The writing standard (zero-context reader)
+
+Every user-facing string — intro, prompt, label, description, insight row — is written for a reader with **zero context**: plain technical English, complete short sentences (subject and verb present), active voice, one fact per sentence, the point first. Spell a term out where you name it; let numbers and file paths carry the weight. The labels and row structure organize the content; full sentences carry it.
+
+Applied to the worked example below, the same insight rows at bar quality:
+
+- **Pattern:** Settled survey records are read when a new survey is authored, so earlier answers shape later questions.
+- **Proven at:** The context plugins resolve per-session data through provide contributions in production, and `survey_records` (v0.3.0) already reads the settled store this way.
+- **Breaks when:** Fifty settled surveys later, injecting all of them outranks relevance — the mechanism needs ranking, not raw replay.
+- **Here now:** `SurveyHostService.ask` (`src/host.js`) has no injection seam yet, and two settled records sit in `~/.dsh/rich-questions/surveys/` unread.
+
+Each row: one complete sentence, one checkable claim, a stranger can verify it.
+
 ## The bar — with the worked example
 
 Every rule below is shown applied to ONE real option (from this plugin's own v3.1 survey — it shipped and was answered):
