@@ -65,3 +65,16 @@ test('every primitives reference in the client bundle is a real export', async (
     'an undefined component throws at render time and the slot renderer drops the whole entry (class guard shared across the rich-* plugins)',
   )
 })
+
+test('the manifest rides the 0.2.0 plugin contract (no stale injects, locale meta exported)', () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+  assert.equal(pkg.dsh?.client?.platform, 'web', 'dsh.client.platform stays web')
+  assert.ok(
+    (pkg.dsh?.client?.inject ?? []).includes('@deepseek-ai/dsh-client-runtime') === false,
+    '@deepseek-ai/dsh-client-runtime was removed upstream (be531688f3) — drop the stale inject edge',
+  )
+  assert.ok(pkg.exports?.['./locale/*.json'], 'exports must expose ./locale/*.json so the Plugins menu can read display metadata')
+  assert.ok((pkg.files ?? []).includes('locale'), 'files must ship the locale directory')
+  const en = JSON.parse(readFileSync(new URL('../locale/en.json', import.meta.url), 'utf8'))
+  assert.equal(typeof en.meta?.title, 'string', 'locale/en.json carries meta.title for the Plugins menu card')
+})

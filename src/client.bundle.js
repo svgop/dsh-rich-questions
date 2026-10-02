@@ -610,7 +610,7 @@ a.rq-source:hover{text-decoration:underline}
 			return (0, react_jsx_runtime.jsxs)("div", {
 				className: cx("rq-customRow", active && "rq-customRowActive", disabled && "rq-customRowDisabled"),
 				children: [
-					(0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconEditOutline16, { size: 13, className: "rq-customIcon" }),
+					(0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconEditOutlineRegular, { size: 13, className: "rq-customIcon" }),
 					(0, react_jsx_runtime.jsx)("input", {
 						type: "text",
 						className: "rq-customInput",
@@ -756,7 +756,7 @@ a.rq-source:hover{text-decoration:underline}
 					setJustifyEditing((value) => !value);
 				},
 				onKeyDown: (event) => event.stopPropagation(),
-				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconEditOutline16, { size: 12 })
+				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconEditOutlineRegular, { size: 12 })
 			}) : null;
 			const justifyBlock = selected && justifyEditing ? (0, react_jsx_runtime.jsxs)("span", {
 				className: cx("rq-justifyRow", justifyDraftText.trim() !== "" && "rq-justifyRowActive"),
@@ -781,7 +781,7 @@ a.rq-source:hover{text-decoration:underline}
 						"aria-label": t("action.submit"),
 						disabled: justifyDraftText.trim() === "",
 						onClick: (event) => { event.stopPropagation(); submitJustify(); },
-						children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCheckOutline14, { size: 12 })
+						children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCheckOutlineRegular, { size: 12 })
 					})
 				]
 			}) : selected && justifyText != null && justifyText !== "" ? (0, react_jsx_runtime.jsxs)("button", {
@@ -803,7 +803,7 @@ a.rq-source:hover{text-decoration:underline}
 				disabled,
 				onClick: stopAndToggle("text"),
 				onKeyDown: (event) => event.stopPropagation(),
-				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconQuestionOutline14, { size: 12 })
+				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconQuestionOutlineRegular, { size: 12 })
 			});
 			const diagramButton = hasDiagram ? (0, react_jsx_runtime.jsx)("button", {
 				type: "button",
@@ -814,7 +814,7 @@ a.rq-source:hover{text-decoration:underline}
 				disabled,
 				onClick: stopAndToggle("diagram"),
 				onKeyDown: (event) => event.stopPropagation(),
-				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconBranchOutline16, { size: 12 })
+				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconBranchOutlineRegular, { size: 12 })
 			}) : null;
 			return (0, react_jsx_runtime.jsxs)("div", {
 				className: cx("rq-opt", selected && !multi && "rq-optSelected"),
@@ -835,7 +835,7 @@ a.rq-source:hover{text-decoration:underline}
 						? (0, react_jsx_runtime.jsx)("span", {
 							className: cx("rq-box", selected && "rq-boxOn"),
 							"aria-hidden": "true",
-							children: selected ? (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCheckOutline14, { size: 12 }) : null
+							children: selected ? (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCheckOutlineRegular, { size: 12 }) : null
 						})
 						: (0, react_jsx_runtime.jsx)("span", { className: "rq-key", children: option.key }),
 					(0, react_jsx_runtime.jsxs)("span", {
@@ -1211,7 +1211,7 @@ a.rq-source:hover{text-decoration:underline}
 												title: t("nav.minimize"),
 												disabled: busy !== null,
 												onClick: () => { setSurveyMinimized(survey.surveyId, true); surveyStore.bump(); },
-												children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronDownOutline14, {})
+												children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronDownOutlineRegular, { size: 14 })
 											})
 										}),
 										(0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.Tooltip, {
@@ -1224,7 +1224,7 @@ a.rq-source:hover{text-decoration:underline}
 												"aria-label": t("nav.cancel"),
 												disabled: busy !== null,
 												onClick: cancel,
-												children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutline16, {})
+												children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutlineRegular, {})
 											})
 										})
 									]
@@ -1297,7 +1297,7 @@ a.rq-source:hover{text-decoration:underline}
 														"aria-label": t("nav.prev"),
 														disabled: quickMode ? busy !== null : isIntro || cursor === (hasIntro ? -1 : 0) || busy !== null,
 														onClick: quickMode ? () => setQuickMode(false) : goBack,
-														children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronLeftOutline14, {})
+														children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconChevronLeftOutlineRegular, { size: 14 })
 													})
 												}),
 												quickMode || isIntro ? null : (0, react_jsx_runtime.jsx)("span", { className: "rq-bar", "aria-hidden": "true", children: (0, react_jsx_runtime.jsx)("span", { className: "rq-barFill", style: { width: `${progressPct}%` } }) }),
@@ -1460,7 +1460,7 @@ a.rq-source:hover{text-decoration:underline}
 						setOverride({ slug: draft.slug, revision: draft.revision, status: draft.status, hidden: false });
 					},
 					children: [
-						(0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconListPenOutline16, { size: 14 }),
+						(0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconListPenOutlineRegular, { size: 14 }),
 						(0, react_jsx_runtime.jsx)("span", { children: `${t("draft.recall")} \u00b7 ${draft.title ?? draft.slug}` })
 					]
 				}) });
@@ -1486,7 +1486,7 @@ a.rq-source:hover{text-decoration:underline}
 						saveDraftDismissal(draft.slug, value);
 						setOverride({ slug: draft.slug, revision: draft.revision, status: draft.status, hidden: true });
 					},
-					children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutline16, {}),
+					children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconCloseOutlineRegular, {}),
 				}),
 			] }) });
 		}
@@ -1551,7 +1551,7 @@ a.rq-source:hover{text-decoration:underline}
 				"aria-label": t("nav.reopen"),
 				title: t("nav.reopen"),
 				onClick: () => { setSurveyMinimized(pending.surveyId, false); surveyStore.bump(); },
-				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconQuestionOutline14, {})
+				children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconQuestionOutlineRegular, { size: 14 })
 			});
 		}
 		//#endregion

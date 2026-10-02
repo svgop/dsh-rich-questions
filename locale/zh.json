@@ -1,0 +1,6 @@
+{
+	"meta": {
+		"title": "富问题",
+		"description": "在对话输入区渲染分支问卷：ask_survey 工具支持按选项分支、悬停洞察、Mermaid 图表与一键快捷模式。"
+	}
+}
