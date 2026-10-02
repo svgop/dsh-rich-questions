@@ -39,7 +39,7 @@ const LIMITS = {
 }
 
 export const name = 'dsh-rich-questions'
-export const inject = ['tools', 'webServer', 'agents', 'systemPrompt']
+export const inject = ['tools', 'webServer', 'agents', 'systemPrompt', 'connection']
 
 /**
  * Machine-local plugin home (draft manifest, settled records):
@@ -154,13 +154,41 @@ async function readJsonBody(req, limit) {
  * (work.clicloud.co edge), so the request always arrives loopback — a bare
  * non-browser curl is still refused by the marker.
  */
-function guard(req, res) {
+/**
+ * Route fence: Connection's own Host/Origin + browser-authentication policy —
+ * the same checks the /api channel applies, and the only check that is correct
+ * under BOTH carriers. The desktop app loads its page from a custom scheme,
+ * so its fetches to 127.0.0.1 carry `sec-fetch-site: cross-site` and no
+ * Origin header — the old local fence rejected exactly the legitimate client
+ * ("failed: forbidden" panels on the desktop app). The loopback+fetch-
+ * metadata fence survives only as the fallback when no Connection service is
+ * in scope. `guard` is (re)assigned in apply().
+ */
+let guard = localGuard
+
+function localGuard(req, res) {
   const remote = req.socket?.remoteAddress ?? ''
   const loopback = remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1'
   const site = req.headers['sec-fetch-site']
   const browser = site === 'same-origin' || typeof req.headers.origin === 'string'
   if (!loopback || !browser) writeJson(res, 403, { ok: false, error: 'forbidden' })
   return loopback && browser
+}
+
+function makeGuard(ctx) {
+  return (req, res) => {
+    const connection = ctx?.connection
+    if (connection !== undefined && typeof connection.requestRejection === 'function') {
+      const rejection = connection.requestRejection(req)
+      if (rejection !== undefined) {
+        res.writeHead(rejection, { 'content-type': 'text/plain; charset=utf-8' })
+        res.end(rejection === 401 ? 'unauthorized' : 'forbidden')
+        return false
+      }
+      return true
+    }
+    return localGuard(req, res)
+  }
 }
 
 /**
@@ -1047,6 +1075,7 @@ function registerAuthoringSkill(ctx) {
 }
 
 export function apply(ctx, config = {}) {
+  guard = makeGuard(ctx)
   const service = new SurveyHostService()
   const structureQuestionCap = Number.isFinite(config?.structureQuestionCap) ? config.structureQuestionCap : 150
   // Manifest-only store for route/card hydration (draft files themselves are
